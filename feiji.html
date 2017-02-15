@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>练习十四--飞机</title>
+	<meta charset="utf-8">
+	<style type="text/css">
+		*{margin: 0;}
+		#all1{position: relative;width: 1210px;margin: auto;text-align: center;}
+		#main{width: 320px;height: 568px;background: url(image_feiji/开始背景.png);
+			margin:auto;
+			margin-top: 10px;
+			position:relative;
+			border: 1px solid white;
+			overflow: hidden;
+		}
+		button{width:100px;height:30px;}
+		#btn_start{margin-left: 525px;}
+	</style>
+</head>
+<body>
+	<div id="main"></div>
+	<button id="btn_start">开始游戏</button>
+	<button id="btn_stop">暂停游戏</button>
+	<button id="btn_over">结束游戏</button>
+<script type="text/javascript">
+var main=document.getElementById("main");
+var btn_start=document.getElementById("btn_start");
+var btn_stop=document.getElementById("btn_stop");
+var btn_over=document.getElementById("btn_over");
+var main_l=main.offsetLeft;
+var main_t=main.offsetTop;
+var main_w=main.offsetWidth;
+var main_h=main.offsetHeight;
+var myfly_src="image_feiji/我的飞机.gif";
+var myfly_bom="image_feiji/本方飞机爆炸.gif";
+var sfly_src="image_feiji/enemy1_fly_1.png";
+var sfly_bom="image_feiji/小飞机爆炸.gif";
+var mfly_src="image_feiji/enemy3_fly_1.png";
+var mfly_by="image_feiji/中飞机挨打.png";
+var mfly_bom="image_feiji/中飞机爆炸.gif";
+var bfly_src="image_feiji/enemy2_fly_1.png";
+var bfly_by="image_feiji/大飞机挨打.png";
+var bfly_bom="image_feiji/大飞机爆炸.gif";
+var bullet_src="image_feiji/bullet1.png";
+var time_startRun;
+
+btn_over.onclick=function(){
+	location.reload();
+}
+btn_stop.onclick=function(){
+	clearInterval(time_startRun)
+	if(main.removeEventListener){
+		document.removeEventListener("mousemove",myMove,false);
+	}else{
+		document.detachEvent("onmousemove",myMove);
+	}
+}
+btn_start.onclick=function(){
+	main.style.backgroundImage="url(image_feiji/background_1.png)";
+	my_plane.fly.style.display="block";
+	time_startRun=setInterval(startRun,30)
+	if(main.addEventListener){
+		document.addEventListener("mousemove",myMove,false);
+	}else{
+		document.attachEvent("onmousemove",myMove);
+	}
+}
+var time0=0,time1=0;time2=0;
+var enemys=[];
+var bullets=[];
+function startRun(){
+	time0++;
+	//创造敌机
+	if(time0==20){
+		time1++;
+		if(time1%5==0){
+			enemys.push(new Enemy(46,60,null,null,mfly_src,mfly_bom,null,3,5,15))
+		}if(time1%15==0){
+			enemys.push(new Enemy(110,164,null,null,bfly_src,bfly_bom,null,2,10,30))
+		}else{
+			enemys.push(new Enemy(34,24,null,null,sfly_src,sfly_bom,null,5,1,5))
+		}
+		time0=0;
+	}
+	//创建子弹
+	if(time0%5==0){
+		bullets.push(new Bullet(6,14,my_plane.fly.offsetLeft+33,my_plane.fly.offsetTop,bullet_src,null,null,8))
+	}
+	//敌机移动
+	(function(){
+		for(var i=0;i<enemys.length;i++){
+			if(enemys[i].die){
+				enemys[i].die_time--;
+				if(enemys[i].die_time==0){
+					main.removeChild(enemys[i].fly)
+					enemys.splice(i,1);
+				}
+			}
+			if(enemys[i].fly.offsetTop>main_t+main_h){
+				main.removeChild(enemys[i].fly)
+				enemys.splice(i,1);
+			}else{
+				enemys[i].fly_move();
+			}
+		}
+	})();
+	//子弹移动
+	(function(){
+		for(var i=0;i<bullets.length;i++){
+			bullets[i].bullet_move();
+			if(bullets[i].fly.offsetTop<0){
+				main.removeChild(bullets[i].fly)
+				bullets.splice(i,1);
+			}
+		}
+	})();
+	//子弹敌机碰撞事件
+	(function(){
+		for(var i=0;i<enemys.length;i++){
+			for(var e=0;e<bullets.length;e++){
+				var bu_l=bullets[e].fly.offsetLeft;
+				var bu_r=bullets[e].fly.offsetLeft+bullets[e].w;
+				var en_l=enemys[i].fly.offsetLeft;
+				var en_r=enemys[i].fly.offsetLeft+enemys[i].w;
+				var bu_t=bullets[e].fly.offsetTop;
+				var bu_b=bullets[e].fly.offsetTop+bullets[e].h;
+				var en_t=enemys[i].fly.offsetTop;
+				var en_b=enemys[i].fly.offsetTop+enemys[i].h;
+				var my_l=my_plane.fly.offsetLeft;
+				var my_r=my_plane.fly.offsetLeft+my_plane.w;
+				var my_t=my_plane.fly.offsetTop;
+				var my_b=my_plane.fly.offsetTop+my_plane.h;
+				if(bu_r>en_l&&bu_l<en_r){
+					if(bu_t<en_b&&bu_b>en_t){
+						enemys[i].hp--;
+						main.removeChild(bullets[e].fly);
+						bullets.splice(e,1);
+						if(enemys[i].hp==0){
+							enemys[i].fly.src=enemys[i].fly_bom;
+							enemys[i].die=true;
+						}
+					}
+				}
+				if(my_r>en_l&&my_l<en_r){
+					if(my_t<en_b&&my_b>en_t){
+						my_plane.fly.src=my_plane.fly_bom;
+						clearInterval(time_startRun);
+						if(main.removeEventListener){
+							document.removeEventListener("mousemove",myMove,false);
+						}else{
+							document.detachEvent("onmousemove",myMove);
+						}
+					}
+				}
+			}
+		}
+	})();
+	(function(){
+
+	})();
+}
+//飞机构造器
+function Plane(w,h,x,y,fly_src,fly_bom,display,speed,hp,die_time){
+	this.w=w;
+	this.h=h;
+	this.fly_src=fly_src;
+	this.x=x;
+	this.y=y;
+	this.fly_bom=fly_bom;
+	this.display=display;
+	this.speed=speed;
+	this.fly=null;
+	this.hp=hp;
+	this.die_time=die_time;
+	this.die=false;
+	this.init=function(){
+		this.fly=document.createElement("img");
+		main.appendChild(this.fly);
+		this.fly.src=this.fly_src;
+		this.fly.style.position="absolute";
+		this.fly.style.display=this.display;
+		this.fly.style.width=this.w+"px";
+		this.fly.style.height=this.h+"px";
+		this.fly.style.left=this.x+"px";
+		this.fly.style.top=this.y+"px";
+	}
+	this.init();
+	this.fly_move=function(){
+		this.fly.style.top=this.fly.offsetTop+this.speed+"px";
+	}
+	this.bullet_move=function(){
+		this.fly.style.top=this.fly.offsetTop-this.speed+"px";
+	}
+
+}
+//我的飞机冒充继承
+function myPlane(w,h,x,y,fly_src,fly_bom,display){
+	Plane.call(this,w,h,x,y,fly_src,fly_bom,display)
+}
+var my_plane=new myPlane(66,80,main_w/2-33,main_h-80,myfly_src,myfly_bom,"none");
+//敌机冒充继承
+function Enemy(w,h,x,y,fly_src,fly_bom,display,speed,hp,die_time){
+	Plane.call(this,w,h,Math.floor(Math.random()*(main_w-w)),0,fly_src,fly_bom,display,speed,hp,die_time)
+}
+//子弹冒充继承
+function Bullet(w,h,x,y,fly_src,fly_bom,display,speed){
+	Plane.call(this,w,h,x,y,fly_src,fly_bom,display,speed)
+}
+
+//我的飞机移动开关
+var my_plane_flag1=true;
+var my_plane_flag2=false;
+my_plane.fly.onclick=function(){
+	if(my_plane_flag1){
+		my_plane_flag1=false;
+		my_plane_flag2=true;
+	}else{
+		my_plane_flag1=true;
+		my_plane_flag2=false;
+	}
+}
+function myMove(event){
+	if(my_plane_flag2){
+		var event=event||window.event;
+		var X=event.clientX;
+		var Y=event.clientY;
+		if(X>main_l+33&&X<main_l+main_w-33){
+			my_plane.fly.style.left=X-main_l-33+"px";
+		}
+		if(Y>main_t+40&&Y<main_t+main_h-40){
+			my_plane.fly.style.top=Y-main_t-40+"px";
+		}
+	}
+}
+// if(main.addEventListener){
+// 	document.addEventListener("mousemove",myMove,false);
+// }else{
+// 	document.attachEvent("onmousemove",myMove);
+// }
+</script>
+</body>
+</html>
