@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>计算器</title>
+	<meta charset="utf-8">
+	<style type="text/css">
+		*{margin: 0;padding: 0;}
+		.main{}
+		.main1{width: 300px;margin: 50px auto;border: 1px solid #F2F2F2;background: #F2F2F2;text-align: center;}
+		h1{font-size: 20px;line-height: 40px;padding-right: 130px;}
+		.input1{width: 250px;height: 30px;margin: 0 auto;}
+		.button1>input{width: 42px;height: 40px;background: #E2E2E2;margin-bottom: 10px;}
+		.button1{width: 250px; margin: 0 auto;padding-top: 20px;}
+		#text{text-align: right;}
+	</style>	
+</head>
+<body>
+	<div class="main">
+		<div class="main1">
+			<h1>完美计算器</h1>
+			<input id="text" class="input1" type="text" name="" value="0">
+			<div class="button1">
+				<input onclick="aaaa(this)" type="button" name="" value="7">
+				<input onclick="aaaa(this)" type="button" name="" value="8">
+				<input onclick="aaaa(this)" type="button" name="" value="9">
+				<input onclick="dddd()" type="button" name="" value="←">
+				<input onclick="cbCC()" type="button" name="" value="C">
+				<input onclick="aaaa(this)" type="button" name="" value="4">
+				<input onclick="aaaa(this)" type="button" name="" value="5">
+				<input onclick="aaaa(this)" type="button" name="" value="6">
+				<input onclick="bbbb(this)" type="button" name="" value="*">
+				<input onclick="bbbb(this)" type="button" name="" value="/">
+				<input onclick="aaaa(this)" type="button" name="" value="1">
+				<input onclick="aaaa(this)" type="button" name="" value="2">
+				<input onclick="aaaa(this)" type="button" name="" value="3">
+				<input onclick="bbbb(this)" type="button" name="" value="+">
+				<input onclick="bbbb(this)" type="button" name="" value="-">
+				<input onclick="oooo(this)" type="button" name="" value="0">
+				<input onclick="OOOO()" type="button" name="" value="00">
+				<input onclick="bbbb(this)" type="button" name="" value=".">
+				<input onclick="bbbb(this)" type="button" name="" value="%">
+				<input onclick="cccc()" type="button" name="" value="=">
+			</div>
+		</div>			
+	</div>
+	<script type="text/javascript">
+		var text=document.getElementById("text")
+		function cbCC(){
+			text.value=0;
+		}
+		function aaaa(x){
+			if(text.value=="0"){
+				text.value="";		
+			}
+			text.value+=x.value;
+		}
+		function bbbb(y){
+			var patt1=/^[0-9\-]/
+			var patt2=/[0-9]$/
+			if(patt1.test(text.value)&&patt2.test(text.value)){
+				text.value+=y.value
+			}
+		}
+		function cccc(){
+			text.value=eval(text.value)
+		}
+		function dddd(){
+			var abc=text.value;
+			text.value=abc.substring(0,abc.length-1);
+		}
+		function oooo(x){
+			if(text.value=="0"){
+				text.value="";		
+			}
+			var patt3=/[\+\-\*\/\%]0$/;
+			if(patt3.test(text.value))return;
+			text.value=text.value+"0";
+		}
+		function OOOO(){
+			if(text.value=="0"){
+				return;		
+			}
+			var patt4=/[\+\-\*\/\%]0*$/;
+			if(patt4.test(text.value))return;
+			text.value=text.value+"00";
+		}
+	</script>
+</body>
+</html>
